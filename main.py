@@ -1,9 +1,17 @@
 # Ken Holm
 # Purpose: This is my CRUD test program
+# Create
+# Read
+# Update
+# Delete
+#
 # See https://pymysql.readthedocs.io/en/latest/index.html
+#  We need to install the mypysql library
+#  In the Terminal window (bottom of PyCharm), run
+#  pip3 install pymysql
+
 import pymysql.cursors
 from creds import *
-
 
 def showData():
     # Our sql statement, easy to read
@@ -48,6 +56,8 @@ try:
         print(f"Initial Data")
         showData()
 
+        # NOTE: We are using placeholders in our SQL statement
+        #  See https://dev.mysql.com/doc/connector-python/en/connector-python-api-mysqlcursor-execute.html
         sqlInsert = """
             insert into
               employees (id, first_name, last_name, username)
@@ -75,15 +85,21 @@ try:
         print(f"Inserting data")
         cursor.execute(sqlInsert, (9999, 'Ken', 'Holm', 'kholm'))
 
+        print(f"We have executed the INSERT statement")
+        print(f"Does the data exist outside of this program?")
+        showData()
+
         # Now, we have to COMMIT our command
         myConnection.commit()
 
+        print(f"We have now committed the data")
+        print(f"What about now?")
         showData()
 
         # ===============
         # Execute update
         print(f"Updating data")
-        cursor.execute(sqlUpdate, ('Suzie', 9999))
+        cursor.execute(sqlUpdate, ('Alex', 9999))
 
         # Now, we have to COMMIT our command
         myConnection.commit()
@@ -99,7 +115,6 @@ try:
         myConnection.commit()
 
         showData()
-
 
 # If there is an exception, show what that is
 except Exception as e:
