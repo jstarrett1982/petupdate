@@ -4,6 +4,6 @@
 #Please enter in your true sign-in information below to make the program run.
 
 username = 'root'
-password = 'foo'
-hostname = 'boo'
+password = 'Violet@1982'
+hostname = 'localhost'
 database = 'Pets'
