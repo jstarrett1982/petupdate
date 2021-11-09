@@ -102,31 +102,73 @@ def options():
 
 
 def petEdit():
-    status =0
+    status = 0
+    petChoice = 0
     connectPrint()
     while status == 0:
+        petChoice = input("please enter a pet ID number to edit their name or age")
+        if str.isnumeric(petChoice):
+            for item in listOfDictionaries:
+                if int(petChoice) != item["ID_number"]:
+                    continue
 
-# Creating a handle to connect to the database.  The variables come from the creds file.  Dummy variables are entered due to submitting in GitHub.
-# Please enter your actual user name, password, and host name into the creds file to run this program.
+                if int(petChoice) == item["ID_number"]:
+                    print()
+                    print("You have chosen to edit", item["pets_name"])
+                    print()
+                    newName=input("New name: [ENTER == no change]   ")
+
+
+                # This catches any numbers input by the user that aren't pet ID numbers. It reposts the pet menu for the user to view again.
+                else:
+                    print()
+                    print("try a different number please")
+                    connectPrint()
+
+
+            # This allows the user to quit if entering q or Q. It then prints a closing message.
+        elif petChoice.upper() == "Q":
+            print()
+            print("looks like you are done")
+            programStatus = 1
+            quit()
+
+            # This catches any user input that is a string other than Q or q, and gives an appropriate message.
+            # Then, it re-posts the pet menu for the user to view.
+        else:
+            print()
+            print("please enter a number, not a string")
+            print()
+            connectPrint()
+
+
+
+
+        # Last chance to catch any problems.
+        #except Exception as e:
+            #print("looks like something happened")
+
+
+        # Creating a handle to connect to the database.  The variables come from the creds file.  Dummy variables are entered due to submitting in GitHub.
+        # Please enter your actual user name, password, and host name into the creds file to run this program.
         try:
             myConnection2 = pymysql.connect(host=hostname,
-                                   user=username,
-                                   password=password,
-                                   db=database,
-                                   charset='utf8mb4',
-                                   cursorclass=pymysql.cursors.DictCursor)
+                                            user=username,
+                                            password=password,
+                                            db=database,
+                                            charset='utf8mb4',
+                                            cursorclass=pymysql.cursors.DictCursor)
 
-    #except Exception as e:
-        #print(f"An error has occurred.  Exiting: {e}")
-        #print()
-        #exit()
+        except Exception as e:
+            print(f"An error has occurred.  Exiting: {e}")
+            print()
+            exit()
 
-    # Now that we are connected, execute a query
-    #  and do something with the result set.
-    #try:
-    with myConnection2.cursor() as cursor:
+        # Now that we are connected, execute a query
+        #  and do something with the result set.
+        # try:
+        with myConnection2.cursor() as cursor:
             # ==================
-
 
             # NOTE: We are using placeholders in our SQL statement
             #  See https://dev.mysql.com/doc/connector-python/en/connector-python-api-mysqlcursor-execute.html
@@ -145,7 +187,7 @@ def petEdit():
                 where
                   id = %s  ;
                 """
-            sqlSelect2 =  """ select pets.id as ID_number, 
+            sqlSelect2 = """ select pets.id as ID_number, 
              pets.name as pets_name, pets
              .age, owners.name as owners_name, 
              types.animal_type from pets join
@@ -162,8 +204,6 @@ def petEdit():
             # Execute insert
             print(f"Inserting data")
             cursor.execute(sqlInsert, (9999, 'Ken', 'Holm', 'kholm'))
-
-
 
             # Now, we have to COMMIT our command
             myConnection.commit()
@@ -232,7 +272,7 @@ def petLoop():
         except Exception as e:
             print("looks like something happened")
 
-    #print("the program has ended")
+    # print("the program has ended")
 
 
 connectPrint()
