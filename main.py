@@ -92,7 +92,7 @@ def options():
             break
         elif menu.upper() == "E":
             print()
-            petEdit()
+            petEditLoop()
             break
         else:
             print()
@@ -100,13 +100,89 @@ def options():
             status = 0
             print()
 
+def connectUpdateName():
 
-def petEdit():
+    try:
+        myConnection2 = pymysql.connect(host=hostname,
+                                        user=username,
+                                        password=password,
+                                        db=database,
+                                        charset='utf8mb4',
+                                        cursorclass=pymysql.cursors.DictCursor)
+
+    except Exception as e:
+        print(f"An error has occurred.  Exiting: {e}")
+        print()
+        exit()
+
+    # Now that we are connected, execute a query
+    #  and do something with the result set.
+    # try:
+    with myConnection2.cursor() as cursor:
+    # ==================
+
+    # NOTE: We are using placeholders in our SQL statement
+    #  See https://dev.mysql.com/doc/connector-python/en/connector-python-api-mysqlcursor-execute.html
+
+        sqlUpdateName = """
+            update
+              pets
+            set
+              pets.name = %s
+            where
+              id = %s  ; """
+
+        cursor.execute(sqlUpdateName, ('newName', petChoice))
+
+        myConnection2.commit()
+
+        myConnection2.close()
+
+def connectUpdateAge():
+    try:
+        myConnection3 = pymysql.connect(host=hostname,
+                                        user=username,
+                                        password=password,
+                                        db=database,
+                                        charset='utf8mb4',
+                                        cursorclass=pymysql.cursors.DictCursor)
+
+    except Exception as e:
+        print(f"An error has occurred.  Exiting: {e}")
+        print()
+        exit()
+
+    # Now that we are connected, execute a query
+    #  and do something with the result set.
+    # try:
+    with myConnection3.cursor() as cursor:
+    # ==================
+
+    # NOTE: We are using placeholders in our SQL statement
+    #  See https://dev.mysql.com/doc/connector-python/en/connector-python-api-mysqlcursor-execute.html
+
+    sqlUpdateAge = """
+            update
+              pets
+            set
+              pets.age = %s
+            where
+              id = %s  ;
+            """
+
+    # Execute update
+    cursor.execute(sqlUpdateAge, ('newAge', petChoice))
+
+    myConnection3.commit()
+    myConnection3.close()
+
+def petEditLoop():
     status = 0
     petChoice = 0
     connectPrint()
     while status == 0:
         petChoice = input("please enter a pet ID number to edit their name or age")
+
         if str.isnumeric(petChoice):
             for item in listOfDictionaries:
                 if int(petChoice) != item["ID_number"]:
@@ -116,15 +192,33 @@ def petEdit():
                     print()
                     print("You have chosen to edit", item["pets_name"])
                     print()
-                    newName=input("New name: [ENTER == no change]   ")
+                    newName = input("New name: [ENTER == no change]   ")
+                    if newName != "":
+                       connectUpdateName()
+                    elif newName == "":
+                        item["pets_name"] = newName
+                        connectUpdateName()
+                    newAge= input("New age:  [ENTER == no change]    ")
+                    if str.isnumeric(newAge):
+                        connectUpdateAge()
 
+                    elif newAge == "":
+                        item["age"] = newAge
+                        connectUpdateAge()
+                    else:
+                        print("please enter a number")
+                        print()
+                        newAge= input ("New age:  [ENTER = no change   ")
+
+                    print("here is the updated pet list:")
+                    print()
+                    connectPrint()
 
                 # This catches any numbers input by the user that aren't pet ID numbers. It reposts the pet menu for the user to view again.
                 else:
                     print()
                     print("try a different number please")
                     connectPrint()
-
 
             # This allows the user to quit if entering q or Q. It then prints a closing message.
         elif petChoice.upper() == "Q":
@@ -140,82 +234,9 @@ def petEdit():
             print("please enter a number, not a string")
             print()
             connectPrint()
-
-
-
-
-        # Last chance to catch any problems.
-        #except Exception as e:
-            #print("looks like something happened")
-
-
-        # Creating a handle to connect to the database.  The variables come from the creds file.  Dummy variables are entered due to submitting in GitHub.
-        # Please enter your actual user name, password, and host name into the creds file to run this program.
-        try:
-            myConnection2 = pymysql.connect(host=hostname,
-                                            user=username,
-                                            password=password,
-                                            db=database,
-                                            charset='utf8mb4',
-                                            cursorclass=pymysql.cursors.DictCursor)
-
-        except Exception as e:
-            print(f"An error has occurred.  Exiting: {e}")
             print()
-            exit()
+            petChoice = input("please enter a pet ID number to edit their name or age")
 
-        # Now that we are connected, execute a query
-        #  and do something with the result set.
-        # try:
-        with myConnection2.cursor() as cursor:
-            # ==================
-
-            # NOTE: We are using placeholders in our SQL statement
-            #  See https://dev.mysql.com/doc/connector-python/en/connector-python-api-mysqlcursor-execute.html
-            sqlInsert = """
-                insert into
-                  employees (id, first_name, last_name, username)
-                values
-                  (%s, %s, %s, %s);
-                """
-
-            sqlUpdateName = """ 
-                update
-                  pets
-                set
-                  pets_name = %s
-                where
-                  id = %s  ;
-                """
-            sqlSelect2 = """ select pets.id as ID_number, 
-             pets.name as pets_name, pets
-             .age, owners.name as owners_name, 
-             types.animal_type from pets join
-               owners on pets.owner_id=owners.id 
-               join types on pets.animal_type_id = types.id """
-
-            sqlDelete = """
-                delete from
-                  employees
-                where
-                  id = %s;
-                """
-            # ===============
-            # Execute insert
-            print(f"Inserting data")
-            cursor.execute(sqlInsert, (9999, 'Ken', 'Holm', 'kholm'))
-
-            # Now, we have to COMMIT our command
-            myConnection.commit()
-
-            print(f"We have now committed the data")
-            print(f"What about now?")
-            showData()
-
-            # ===============
-            # Execute update
-            print(f"Updating data")
-            cursor.execute(sqlUpdate, ('Alex', 9999))
 
 
 # The loop below asks for user input in the form of the pet ID number from the printed menu.
