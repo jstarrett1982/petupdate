@@ -12,6 +12,7 @@ from animals import Animals
 
 # creating my empty list of dictionaries variable.  I will add to this while reading through my database.
 listOfDictionaries = []
+petChoice = ""
 
 
 # Ultimately, this function shows the list of our pet names and their ID numbers.
@@ -75,6 +76,7 @@ def connectPrint():
         print()
 
 
+# this function gives the different options for continuing, quitting, or editing.
 def options():
     status = 0
     while status == 0:
@@ -100,8 +102,9 @@ def options():
             status = 0
             print()
 
-def connectUpdateName():
 
+# this function opens the database, changes the pet name at the correct pet ID, saves the change, then closes
+def connectUpdateName():
     try:
         myConnection2 = pymysql.connect(host=hostname,
                                         user=username,
@@ -119,10 +122,10 @@ def connectUpdateName():
     #  and do something with the result set.
     # try:
     with myConnection2.cursor() as cursor:
-    # ==================
+        # ==================
 
-    # NOTE: We are using placeholders in our SQL statement
-    #  See https://dev.mysql.com/doc/connector-python/en/connector-python-api-mysqlcursor-execute.html
+        # NOTE: We are using placeholders in our SQL statement
+        #  See https://dev.mysql.com/doc/connector-python/en/connector-python-api-mysqlcursor-execute.html
 
         sqlUpdateName = """
             update
@@ -132,11 +135,13 @@ def connectUpdateName():
             where
               id = %s  ; """
 
+        # this updates the pet name based on petChoice, which is the pet ID number
         cursor.execute(sqlUpdateName, ('newName', petChoice))
 
+        # this saves the new name to the database and closes the session
         myConnection2.commit()
-
         myConnection2.close()
+
 
 def connectUpdateAge():
     try:
@@ -156,12 +161,12 @@ def connectUpdateAge():
     #  and do something with the result set.
     # try:
     with myConnection3.cursor() as cursor:
-    # ==================
+        # ==================
 
-    # NOTE: We are using placeholders in our SQL statement
-    #  See https://dev.mysql.com/doc/connector-python/en/connector-python-api-mysqlcursor-execute.html
+        # NOTE: We are using placeholders in our SQL statement
+        #  See https://dev.mysql.com/doc/connector-python/en/connector-python-api-mysqlcursor-execute.html
 
-    sqlUpdateAge = """
+        sqlUpdateAge = """
             update
               pets
             set
@@ -170,19 +175,22 @@ def connectUpdateAge():
               id = %s  ;
             """
 
-    # Execute update
-    cursor.execute(sqlUpdateAge, ('newAge', petChoice))
+        # Execute update
+        cursor.execute(sqlUpdateAge, ('newAge', int(petChoice)))
 
-    myConnection3.commit()
-    myConnection3.close()
+        # this saves our changes to pet age and closes the connection
+        myConnection3.commit()
+        myConnection3.close()
+
 
 def petEditLoop():
     status = 0
-    petChoice = 0
+    petChoice = int
     connectPrint()
     while status == 0:
         petChoice = input("please enter a pet ID number to edit their name or age")
 
+        # checks if input is a number then runs it through the dictionary to find the pet ID
         if str.isnumeric(petChoice):
             for item in listOfDictionaries:
                 if int(petChoice) != item["ID_number"]:
@@ -194,11 +202,11 @@ def petEditLoop():
                     print()
                     newName = input("New name: [ENTER == no change]   ")
                     if newName != "":
-                       connectUpdateName()
+                        connectUpdateName()
                     elif newName == "":
                         item["pets_name"] = newName
                         connectUpdateName()
-                    newAge= input("New age:  [ENTER == no change]    ")
+                    newAge = input("New age:  [ENTER == no change]    ")
                     if str.isnumeric(newAge):
                         connectUpdateAge()
 
@@ -208,7 +216,7 @@ def petEditLoop():
                     else:
                         print("please enter a number")
                         print()
-                        newAge= input ("New age:  [ENTER = no change   ")
+                        newAge = input("New age:  [ENTER = no change   ")
 
                     print("here is the updated pet list:")
                     print()
@@ -236,7 +244,6 @@ def petEditLoop():
             connectPrint()
             print()
             petChoice = input("please enter a pet ID number to edit their name or age")
-
 
 
 # The loop below asks for user input in the form of the pet ID number from the printed menu.
@@ -285,9 +292,6 @@ def petLoop():
                 print("please enter a number, not a string")
                 print()
                 connectPrint()
-
-
-
 
         # Last chance to catch any problems.
         except Exception as e:
